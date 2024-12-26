@@ -1,19 +1,17 @@
 import pyttsx3
 import datetime
 import speech_recognition as sr
-import pyfirmata
+import pyfirmata2
 import time
 import datetime
 from pymata4 import pymata4
 import os
-import serial
 import webbrowser as wb
 import wikipedia
 import subprocess
 import pyjokes
 
-
-board=pyfirmata.Arduino('COM5')
+board=pyfirmata2.Arduino('COM3')
 engine = pyttsx3.init()
 voices = engine.getProperty('voices')
 engine.setProperty('voice', voices[0].id)
@@ -74,7 +72,7 @@ def takeCommand():
     with sr.Microphone() as source:
         print("Listening....")
         # r.pause_threshold = 1
-        audio=r.listen(source,timeout=2)
+        audio=r.listen(source,timeout=10)
         # audio = r.listen(source)
     try:
         print("Recognising...")
@@ -90,13 +88,13 @@ def takeCommand():
 
 
 if __name__ == "__main__":
-    board.digital[3].write(0)
-    board.digital[8].write(0)
-    board.digital[6].write(0)
-    board.digital[5].write(0) 
-    board.digital[4].write(0)
-    board.digital[9].write(0)
-    board.digital[13].write(1)
+    board.digital[3].write(1)
+    board.digital[8].write(1)
+    board.digital[6].write(1)
+    board.digital[5].write(1) 
+    board.digital[4].write(1)
+    board.digital[9].write(1)
+    board.digital[13].write(0)
     wishme()
 
     while True:
@@ -135,42 +133,42 @@ if __name__ == "__main__":
         elif 'turn on blue light' in query:
             speak('Turning on the Light....')
             #time.sleep(0.1)
-            board.digital[3].write(1)
+            board.digital[3].write(0)
 
         elif 'turn off blue light' in query:
             speak('Truning of the light....')
             # time.sleep(0.1)
-            board.digital[3].write(0)
+            board.digital[3].write(1)
 
         elif 'turn on red light' in query:
             speak('Turning on the Light....')
             #time.sleep(0.1)
-            board.digital[4].write(1)
+            board.digital[4].write(0)
 
         elif 'turn off red light' in query:
             speak('Truning of the light....')
             # time.sleep(0.1)
-            board.digital[4].write(0)
+            board.digital[4].write(1)
 
         elif 'turn on green light' in query:
             speak('Turning on the Light....')
             #time.sleep(1)
-            board.digital[5].write(1)
+            board.digital[5].write(0)
 
         elif 'turn off green light' in query:
             speak('Turning of the light....')
             # time.sleep(0.1)
-            board.digital[5].write(0) 
+            board.digital[5].write(1) 
 
         elif 'turn on fan' in query:
             speak('Turning on the fan....')
             #time.sleep(0.1)
-            board.digital[6].write(1)
+            board.digital[6].write(0)
 
         elif 'turn off fan' in query:
             speak('Turning of the fan....')
             # time.sleep(0.1)
-            board.digital[6].write(0)
+            board.digital[6].write(1)
 
         # elif 'security' in query:
         #     speak('Entering Security Mode')
@@ -187,21 +185,21 @@ if __name__ == "__main__":
         #         break
 
         elif 'turn on alarm' in  query:
-            board.digital[13].write(0)
+            board.digital[13].write(1)
             speak('alarm is turned on....')
 
         elif 'turn off alarm' in  query:
-            board.digital[13].write(1)
+            board.digital[13].write(0)
             speak('alarm is turned off....')
 
         elif 'on arcade' in query:
             speak('entering arcade mode')
-            board.digital[8].write(1)
+            board.digital[8].write(0)
             speak('laser turned on')  
 
         elif 'exit arcade' in query:
             speak('exiting arcade mode')
-            board.digital[8].write(0)
+            board.digital[8].write(1)
             speak('laser turned off') 
         
         elif 'ir' in query:
@@ -211,12 +209,12 @@ if __name__ == "__main__":
         
         elif 'offline' in query:
             speak('Going Offline....')
-            board.digital[3].write(0)
-            board.digital[8].write(0)
-            board.digital[6].write(0)
-            board.digital[5].write(0) 
-            board.digital[4].write(0)
-            board.digital[9].write(0)
-            board.digital[13].write(1)
+            board.digital[3].write(1)
+            board.digital[8].write(1)
+            board.digital[6].write(1)
+            board.digital[5].write(1) 
+            board.digital[4].write(1)
+            board.digital[9].write(1)
+            board.digital[13].write(0)
             quit()
             
