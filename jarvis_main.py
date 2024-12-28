@@ -1,28 +1,29 @@
+import pyttsx3
 import datetime
 import speech_recognition as sr
-import pyfirmata2
+import pyfirmata
 import time
 import datetime
-import io
+from pymata4 import pymata4
+import os
+import serial
 import webbrowser as wb
+import wikipedia
 import subprocess
 import pyjokes
-import pygame
-from gtts import gTTS
 
-board = pyfirmata2.Arduino('COM3')
+
+board=pyfirmata.Arduino('COM5')
+engine = pyttsx3.init()
+voices = engine.getProperty('voices')
+engine.setProperty('voice', voices[0].id)
+voicespeed = 170
+engine.setProperty('rate', voicespeed)
+
 
 def speak(audio):
-    tts = gTTS(text=audio, lang='vi')
-    mp3_fp = io.BytesIO()
-    tts.write_to_fp(mp3_fp)
-    mp3_fp.seek(0)
-    pygame.mixer.init()
-    pygame.mixer.music.load(mp3_fp, 'mp3')
-    pygame.mixer.music.play()
-    
-    while pygame.mixer.music.get_busy():
-        continue
+    engine.say(audio)
+    engine.runAndWait()
 
 
 def time():
@@ -41,13 +42,13 @@ def date():
     speak(year)
 
 def open_chrome():
-    speak('mở chrome')
+    speak('opening chrome')
     url = "https://www.google.co.in/"
     chrome_path = "C:\Program Files\Google\Chrome\Application\chrome.exe %s"
     wb.get(chrome_path).open(url)
 
 def open_portfolio():
-    speak('mở portfolio')
+    speak('opening portfolio')
     url = "https://sureshkonar.github.io/suresh-portfolio-heroku/"
     chrome_path = "C:\Program Files\Google\Chrome\Application\chrome.exe %s"
     wb.get(chrome_path).open(url)
@@ -57,15 +58,15 @@ def wishme():
     hour = datetime.datetime.now().hour
 
     if hour >= 6 and hour <= 12:
-        speak("Chào buổi sáng")
+        speak("Good morning")
     elif hour >= 12 and hour <= 18:
-        speak("Chào buổi chiều")
+        speak("Good afternoon")
     elif hour >= 18 and hour <= 21:
-        speak("Chào buổi tối")
+        speak("Good evening")
     else:
-        speak("Chào buổi đêm")
+        speak("Good night")
 
-    speak("Trợ lý ảo Jarvis sẵn sàng phục vụ. Tôi có thể giúp gì cho chủ nhân ạ?")
+    speak("Jarvis at your service . Please tell me how can i help u?")
 
 
 def takeCommand():
@@ -73,7 +74,7 @@ def takeCommand():
     with sr.Microphone() as source:
         print("Listening....")
         # r.pause_threshold = 1
-        audio=r.listen(source,timeout=10)
+        audio=r.listen(source,timeout=2)
         # audio = r.listen(source)
     try:
         print("Recognising...")
@@ -85,23 +86,26 @@ def takeCommand():
         return "None"
     return query
 
-def start():
-    # board.digital[3].write(1)
-    # board.digital[8].write(1)
-    # board.digital[6].write(1)
-    # board.digital[5].write(1) 
-    # board.digital[4].write(1)
-    # board.digital[9].write(1)
-    # board.digital[13].write(0)
+
+
+
+if __name__ == "__main__":
+    board.digital[3].write(0)
+    board.digital[8].write(0)
+    board.digital[6].write(0)
+    board.digital[5].write(0) 
+    board.digital[4].write(0)
+    board.digital[9].write(0)
+    board.digital[13].write(1)
     wishme()
 
     while True:
         query = takeCommand().lower()  
         print(query)
 
-        if "thời gian" in query:  
+        if "time" in query:  
             time()           
-        elif "ngày" in query:  
+        elif "date" in query:  
             date()  
 
         elif'portfolio' in query:
@@ -110,63 +114,63 @@ def start():
         elif 'chrome' in query:
             open_chrome()
 
-        elif "tìm kiếm" in query:
-            speak("Tôi có thể tìm kiếm gì?")
+        elif "search" in query:
+            speak("what should i search?")
             chromepath = "C:\Program Files\Google\Chrome\Application\chrome.exe %s"  
             search = takeCommand().lower()
             wb.get(chromepath).open_new_tab(search + ".com")  
         
-        elif "mở ghi chú" in query:
-            speak("Mở ghi chú")
+        elif "open notepad" in query:
+            speak("opening notepad")
             location = "C:/WINDOWS/system32/notepad.exe"
             notepad = subprocess.Popen(location)
 
-        elif "đóng ghi chú" in query:
-                speak("Đóng ghi chú")
+        elif "close notepad" in query:
+                speak("closing notepad")
                 notepad.terminate()
 
-        elif "đùa" in query:
+        elif "joke" in query:
                 speak(pyjokes.get_jokes())
 
-        elif 'bật đèn xanh dương' in query:
-            speak('Đèn đang được bật....')
+        elif 'turn on blue light' in query:
+            speak('Turning on the Light....')
             #time.sleep(0.1)
-            board.digital[3].write(0)
-
-        elif 'tắt đèn xanh dương' in query:
-            speak('Đèn đang được tắt....')
-            # time.sleep(0.1)
             board.digital[3].write(1)
 
-        elif 'bật đèn đỏ' in query:
-            speak('Đèn đang được bật....')
-            #time.sleep(0.1)
-            board.digital[4].write(0)
-
-        elif 'tắt đèn đỏ' in query:
-            speak('Đèn đang được tắt....')
+        elif 'turn off blue light' in query:
+            speak('Truning of the light....')
             # time.sleep(0.1)
+            board.digital[3].write(0)
+
+        elif 'turn on red light' in query:
+            speak('Turning on the Light....')
+            #time.sleep(0.1)
             board.digital[4].write(1)
 
-        elif 'bật đèn xanh lá cây' in query:
-            speak('Đèn đang được bật....')
+        elif 'turn off red light' in query:
+            speak('Truning of the light....')
+            # time.sleep(0.1)
+            board.digital[4].write(0)
+
+        elif 'turn on green light' in query:
+            speak('Turning on the Light....')
             #time.sleep(1)
-            board.digital[5].write(0)
+            board.digital[5].write(1)
 
-        elif 'tắt đèn xanh lá cây' in query:
-            speak('Đèn đang được tắt....')
+        elif 'turn off green light' in query:
+            speak('Turning of the light....')
             # time.sleep(0.1)
-            board.digital[5].write(1) 
+            board.digital[5].write(0) 
 
-        elif 'bật quạt' in query:
-            speak('Quạt đang được bật....')
+        elif 'turn on fan' in query:
+            speak('Turning on the fan....')
             #time.sleep(0.1)
-            board.digital[6].write(0)
-
-        elif 'tắt quạt' in query:
-            speak('Quạt đang được tắt....')
-            # time.sleep(0.1)
             board.digital[6].write(1)
+
+        elif 'turn off fan' in query:
+            speak('Turning of the fan....')
+            # time.sleep(0.1)
+            board.digital[6].write(0)
 
         # elif 'security' in query:
         #     speak('Entering Security Mode')
@@ -182,25 +186,37 @@ def start():
         #         speak('all good outside no threat detected')
         #         break
 
-        elif 'bật báo thức' in  query:
-            board.digital[13].write(1)
-            speak('Báo thức đã được bật....')
+        elif 'turn on alarm' in  query:
+            board.digital[13].write(0)
+            speak('alarm is turned on....')
 
-        elif 'tắt báo thức' in  query:
-            board.digital[13].write(0)
-            speak('Báo thức đã được tắt....')
-        
-        elif 'tắt hệ thống' in query:
-            speak('Hệ thống đang được tắt, tạm biệt chủ nhân....')
-            board.digital[3].write(1)
+        elif 'turn off alarm' in  query:
+            board.digital[13].write(1)
+            speak('alarm is turned off....')
+
+        elif 'on arcade' in query:
+            speak('entering arcade mode')
             board.digital[8].write(1)
-            board.digital[6].write(1)
-            board.digital[5].write(1) 
-            board.digital[4].write(1)
-            board.digital[9].write(1)
-            board.digital[13].write(0)
+            speak('laser turned on')  
+
+        elif 'exit arcade' in query:
+            speak('exiting arcade mode')
+            board.digital[8].write(0)
+            speak('laser turned off') 
+        
+        elif 'ir' in query:
+            speak('turneing on ir')
+            ir=board.digital[9].read()
+            print(ir)
+        
+        elif 'offline' in query:
+            speak('Going Offline....')
+            board.digital[3].write(0)
+            board.digital[8].write(0)
+            board.digital[6].write(0)
+            board.digital[5].write(0) 
+            board.digital[4].write(0)
+            board.digital[9].write(0)
+            board.digital[13].write(1)
             quit()
             
-
-if __name__ == "__main__":
-    start()
