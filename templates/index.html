@@ -64,7 +64,8 @@
 <body>
     <div class="container text-center py-5">
         <!-- Weather Toggle Button -->
-        <div class="circle-button" onclick="toggleWeather()">Bật/Tắt Thời Tiết</div>
+        <div class="circle-button" onclick="runScript()">Bật/Tắt Hệ thống</div>
+        <div id="output"></div>
 
         <!-- Weather Information -->
         <div class="weather-card">
@@ -95,6 +96,15 @@
     </div>
 
     <script>
+        function runScript() {
+            $.post('/run-script', function(data) {
+                $('#output').text(JSON.stringify(data));
+            }).fail(function(error) {
+                console.error('Error:', error);
+                $('#output').text('Error: ' + error.responseText);
+            });
+        }
+
         function toggleWeather() {
             fetch('/toggle', { method: 'POST' })
                 .then(response => response.json())

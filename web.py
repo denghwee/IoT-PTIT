@@ -1,12 +1,13 @@
 from flask import Flask, render_template, jsonify, request
-import serial
+import pyfirmata2
 import requests
+import subprocess
 
 app = Flask(__name__)
 
-API_KEY = "d5835759f04b44bcee460446cfd9e9f4"
+API_KEY = "02b18038a5a0ec844d8eef40508602a7"
 DEFAULT_CITY = "Hanoi"
-board = serial.Serial('COM3', 9600)
+board = pyfirmata2.Arduino('COM3')
 
 def get_weather_data(city):
     url = f"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={API_KEY}&units=metric"
@@ -34,7 +35,7 @@ def index():
 def control():
     device = request.form['device']
     action = request.form['action']
-
+    
     if device == 'blue light':
         board.digital[3].write(1) if action == 'on' else board.digital[3].write(0)
     elif device == 'red light':
@@ -45,6 +46,14 @@ def control():
         board.digital[6].write(1) if action == 'on' else board.digital[6].write(0)
     return 'OK', 200
 
+@app.route('/run-script', methods=['POST'])
+def run_script():
+    try:
+        # Chạy file Python thứ hai
+        result = subprocess.run(['python', 'jarvis_main.py'], capture_output=True, text=True)
+        return jsonify({"status": "success", "output": result.stdout, "error": result.stderr}), 200
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 @app.route('/toggle', methods=['POST'])
 def toggle():
