@@ -77,7 +77,7 @@ def takeCommand():
         # audio = r.listen(source)
     try:
         print("Recognising...")
-        query = r.recognize_google(audio)
+        query = r.recognize_google(audio, language ="vi")
     except Exception as e:
         print(e)
         print("---Say that Again---")
